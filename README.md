@@ -29,7 +29,7 @@ On the tenant, you can run `sudo nvme discover -t rdma -a <ip> -s 4420` and `sud
 
 ## Blake3 dependency
 
-For both the integrity and freshness devices, we require a secure hashing function. For that purpose, we selected libblake. To compile it, use the official Blake3 implementation available [here](https://github.com/BLAKE3-team/BLAKE3), and compile a `libblake3.so` placed in the integrity/freshness device directories. We provide the binaries from our systems, but these might not work for you. You also might need to change the linker flags in `Makefiles` (check `.patch` files). 
+For both the integrity and freshness devices, we require a secure hashing function. For that purpose, we selected libblake. To compile it, use the official Blake3 implementation available [here](https://github.com/BLAKE3-team/BLAKE3), and compile a `libblake3.so` placed in the integrity/freshness device directories. We provide the binaries from our systems, but these might not work for you. You also might need to change the linker flags in `Makefile` to point to the correct directory (check `.patch` files). 
 
 ## Zero initialization
 
