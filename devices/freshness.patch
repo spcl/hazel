@@ -1,0 +1,52 @@
+diff --git a/mk/spdk.modules.mk b/mk/spdk.modules.mk
+index 85b93436e..a3608af64 100644
+--- a/mk/spdk.modules.mk
++++ b/mk/spdk.modules.mk
+@@ -4,7 +4,7 @@
+ #  All rights reserved.
+ #
+ 
+-BLOCKDEV_MODULES_LIST = bdev_malloc bdev_null bdev_nvme bdev_passthru bdev_lvol
++BLOCKDEV_MODULES_LIST = bdev_malloc bdev_null bdev_nvme bdev_passthru bdev_lvol bdev_freshness
+ BLOCKDEV_MODULES_LIST += bdev_raid bdev_error bdev_gpt bdev_split bdev_delay
+ BLOCKDEV_MODULES_LIST += bdev_zone_block
+ BLOCKDEV_MODULES_LIST += blobfs blobfs_bdev blob_bdev blob lvol vmd nvme
+@@ -25,6 +25,12 @@ BLOCKDEV_MODULES_PRIVATE_LIBS +=  $(XNVME_LIB_DIR)/libxnvme.a -luring -laio -pth
+ endif
+ endif
+ 
++DEBUG ?= 0
++BLOCKDEV_MODULES_PRIVATE_LIBS += -L /home/administrator/spdk/module/bdev/freshness -Wl,-rpath=/home/administrator/spdk/module/bdev/freshness -lblake3 
++ifeq ($(DEBUG),1)
++BLOCKDEV_MODULES_PRIVATE_LIBS += -fsanitize=address,undefined
++endif
++
+ ifeq ($(CONFIG_VFIO_USER),y)
+ BLOCKDEV_MODULES_LIST += vfio_user
+ endif
+diff --git a/module/bdev/Makefile b/module/bdev/Makefile
+index 27aa4fa43..c0abb4ffc 100644
+--- a/module/bdev/Makefile
++++ b/module/bdev/Makefile
+@@ -6,7 +6,7 @@
+ SPDK_ROOT_DIR := $(abspath $(CURDIR)/../..)
+ include $(SPDK_ROOT_DIR)/mk/spdk.common.mk
+ 
+-DIRS-y += delay error gpt lvol malloc null nvme passthru raid split zone_block
++DIRS-y += delay error gpt lvol malloc null nvme passthru raid split zone_block freshness
+ 
+ DIRS-$(CONFIG_XNVME) += xnvme
+ 
+diff --git a/module/bdev/nvme/bdev_nvme.c b/module/bdev/nvme/bdev_nvme.c
+index 207095abe..d44cea2bc 100644
+--- a/module/bdev/nvme/bdev_nvme.c
++++ b/module/bdev/nvme/bdev_nvme.c
+@@ -4210,7 +4210,7 @@ nvme_disk_create(struct spdk_bdev *disk, const char *base_name,
+ 
+ 	disk->md_len = spdk_nvme_ns_get_md_size(ns);
+ 	if (disk->md_len != 0) {
+-		disk->md_interleave = nsdata->flbas.extended;
++		disk->md_interleave = nsdata->flbas.extended; // || nsdata->mc.extended;
+ 		disk->dif_type = (enum spdk_dif_type)spdk_nvme_ns_get_pi_type(ns);
+ 		if (disk->dif_type != SPDK_DIF_DISABLE) {
+ 			disk->dif_is_head_of_md = nsdata->dps.md_start;
