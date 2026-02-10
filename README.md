@@ -34,3 +34,15 @@ For both the integrity and freshness devices, we require a secure hashing functi
 ## Zero initialization
 
 We zero-initialized the disks by attaching them freshly formatted to the tenant and running `sudo dd if=/dev/zero of=/dev/nvme1n1 bs=1M`, where `nvme1n1` was found using `sudo nvme list`.
+
+##  Citation
+
+To reference our work, use:
+```
+@article{chrapek2025hazel,
+  title={Hazel: Secure and Efficient Disaggregated Storage},
+  author={Chrapek, Marcin and Orenbach, Meni and Atamli, Ahmad and Copik, Marcin and Khalilov, Mikhail and Alder, Fritz and Hoefler, Torsten},
+  journal={arXiv preprint arXiv:2510.18756},
+  year={2025}
+}
+```
